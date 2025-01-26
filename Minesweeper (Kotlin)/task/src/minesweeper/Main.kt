@@ -1,5 +1,18 @@
 package minesweeper
 
+fun displayBoard(board: MutableList<MutableList<Char>>) {
+    println(" │123456789│")
+    println("—│—————————│")
+    for (i in 1..9) {
+        print("$i│")
+        for (j in 1..9) {
+            print(board[i][j])
+        }
+        println("│")
+    }
+    println("—│—————————│")
+}
+
 fun main() {
     println("How many mines do you want on the field?")
     val mines = readln().toInt()
@@ -30,10 +43,38 @@ fun main() {
         }
     }
 
-    for(i in 1..9){
-        for(j in 1..9){
-            print(board[i][j])
+    val shownBoard = MutableList(9 + 2) { i ->
+        MutableList(9 + 2) { j ->
+            if (board[i][j] == 'X') '.' else board[i][j]
         }
-        println()
+    }
+
+    var flags = 0
+    var gameOver = false
+
+    while(!gameOver) {
+        displayBoard(shownBoard)
+        println("Set/delete mines marks (x and y coordinates):")
+        val line = readln().split(" ")
+        val x = line[0].toInt()
+        val y = line[1].toInt()
+        if (board[x][y].isDigit()) {
+            println("There is a number here!")
+        } else if (shownBoard[x][y] == '*') {
+            shownBoard[x][y] = '.'
+            flags--
+        } else {
+            shownBoard[x][y] = '*'
+            flags++
+        }
+
+        if (flags == mines) {
+            if (List(mines) { i -> shownBoard[mineCoordinates[i][0]][mineCoordinates[i][1]] == '*' }.all { it }) {
+                displayBoard(shownBoard)
+                println("Congratulations! You found all the mines!")
+                gameOver = true
+            }
+
+        }
     }
 }
